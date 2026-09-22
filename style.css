@@ -629,6 +629,12 @@ section {
   font-size: 8.5px;
   fill: var(--navy-500);
 }
+.chart-value-label {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  fill: var(--navy-900);
+}
 
 /* ======================================================
      ANALYTICS PAGE — donut chart + legend list

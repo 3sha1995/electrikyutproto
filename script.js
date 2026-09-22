@@ -93,6 +93,7 @@ function renderDailyChart(period) {
 
   // Bars, each colored red if it exceeds the baseline
   let bars = "";
+  let valueLabels = "";
   let labels = "";
   data.values.forEach((v, i) => {
     const x = padSide + i * barSlot + (barSlot - barWidth) / 2;
@@ -100,6 +101,7 @@ function renderDailyChart(period) {
     const y = padTop + (chartH - barH);
     const over = v > data.baseline;
     bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth}" height="${barH.toFixed(1)}" rx="3" fill="${over ? "var(--red)" : "var(--sky-500)"}"/>`;
+    valueLabels += `<text x="${(x + barWidth / 2).toFixed(1)}" y="${Math.max(8, y - 4).toFixed(1)}" text-anchor="middle" class="chart-value-label">${v}</text>`;
     labels += `<text x="${(x + barWidth / 2).toFixed(1)}" y="${H - 4}" text-anchor="middle" class="chart-axis-label">${data.labels[i]}</text>`;
   });
 
@@ -108,8 +110,7 @@ function renderDailyChart(period) {
   const baseline = `<line x1="${padSide}" y1="${baseY.toFixed(1)}" x2="${W - padSide}" y2="${baseY.toFixed(1)}" stroke="var(--navy-500)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
 
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  svg.innerHTML = bars + baseline + labels;
-
+  svg.innerHTML = bars + baseline + valueLabels + labels;
 }
 
 /* ======================================================
@@ -649,6 +650,7 @@ function drawBarBaselineChart(svg, labels, values, baseline) {
   const barWidth = Math.min(28, barSlot * 0.55);
 
   let bars = "",
+    valueLabels = "",
     labelsSvg = "";
   values.forEach((v, i) => {
     const x = padSide + i * barSlot + (barSlot - barWidth) / 2;
@@ -656,13 +658,14 @@ function drawBarBaselineChart(svg, labels, values, baseline) {
     const y = padTop + (chartH - barH);
     const over = v > baseline;
     bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth}" height="${barH.toFixed(1)}" rx="3" fill="${over ? "var(--red)" : "var(--sky-500)"}"/>`;
+    valueLabels += `<text x="${(x + barWidth / 2).toFixed(1)}" y="${Math.max(8, y - 4).toFixed(1)}" text-anchor="middle" class="chart-value-label">${v}</text>`;
     labelsSvg += `<text x="${(x + barWidth / 2).toFixed(1)}" y="${H - 4}" text-anchor="middle" class="chart-axis-label">${labels[i]}</text>`;
   });
   const baseY = padTop + (chartH - (baseline / maxVal) * chartH);
   const baselineSvg = `<line x1="${padSide}" y1="${baseY.toFixed(1)}" x2="${W - padSide}" y2="${baseY.toFixed(1)}" stroke="var(--navy-500)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
 
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-  svg.innerHTML = bars + baselineSvg + labelsSvg;
+  svg.innerHTML = bars + baselineSvg + valueLabels + labelsSvg;
 }
 
 // Plain hourly bar chart (no baseline) — bars past a "high usage" cutoff turn red
