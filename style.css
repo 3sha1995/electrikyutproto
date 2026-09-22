@@ -356,14 +356,11 @@ section {
      ====================================================== */
 .anomaly-card {
   background: var(--white);
+  border: 1px solid var(--sky-200);
   border-radius: var(--radius-md);
   padding: 14px;
   margin-bottom: 10px;
   box-shadow: var(--shadow-card);
-  border-left: 4px solid var(--amber); /* color reassigned inline per severity */
-}
-.anomaly-card.critical {
-  border-left-color: var(--red);
 }
 
 .anomaly-top {
