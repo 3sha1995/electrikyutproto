@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- Mobile-safe viewport: covers notches/status bars on phones -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ELECTRI-KYUT | Energy Monitor</title>
+
+<!-- Google Font: Space Grotesk for numeric/technical readouts, Inter for UI text -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="index.html">
+<div class="app">
+
+  <!-- ===================== TOP BAR ===================== -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-name">ELECTRI-KYUT</span>
+      <span class="brand-sub">Home energy monitor</span>
+    </div>
+    <!-- Bell opens/closes the notification panel via toggleNotifications() -->
+    <button class="icon-btn" onclick="toggleNotifications()" aria-label="Notifications">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span class="badge-dot"></span>
+    </button>
+  </header>
+
+  <main>
+
+    <!-- ===================== HERO: TOTAL CONSUMPTION ===================== -->
+    <section>
+      <div class="hero">
+        <div class="hero-top">
+          <div>
+            <div class="hero-label">Total consumption today</div>
+            <div class="hero-value num">14.7<span>kWh</span></div>
+          </div>
+          <div class="hero-limit-pill">73% of 20 kWh limit</div>
+        </div>
+
+        <!-- Progress toward the daily 20kWh limit -->
+        <div class="limit-bar-track">
+          <div class="limit-bar-fill"></div>
+        </div>
+        <div class="limit-caption">
+          <span>0 kWh</span>
+          <span>20 kWh limit</span>
+        </div>
+
+        <!-- Mini hourly usage chart: last 12 hours, red = flagged high-usage hour -->
+        <div class="hourly-chart" aria-hidden="true">
+          <div class="bar" style="height:30%"></div>
+          <div class="bar" style="height:22%"></div>
+          <div class="bar" style="height:40%"></div>
+          <div class="bar" style="height:35%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:48%"></div>
+          <div class="bar high" style="height:88%"></div>
+          <div class="bar high" style="height:95%"></div>
+          <div class="bar" style="height:60%"></div>
+          <div class="bar" style="height:50%"></div>
+          <div class="bar" style="height:38%"></div>
+          <div class="bar" style="height:44%"></div>
+        </div>
+        <div class="hourly-caption"><span>8 AM</span><span>Now, 7 PM</span></div>
+
+        <!-- Quick stats -->
+        <div class="hero-stats">
+          <div class="stat-chip">
+            <div class="stat-label">Current load</div>
+            <div class="stat-value num">2.1 kW</div>
+          </div>
+          <div class="stat-chip">
+            <div class="stat-label">Est. cost today</div>
+            <div class="stat-value num">₱176.40</div>
+          </div>
+          <div class="stat-chip">
+            <div class="stat-label">Active appliances</div>
+            <div class="stat-value num">4 / 6</div>
+          </div>
+          <div class="stat-chip">
+            <div class="stat-label">Monthly total</div>
+            <div class="stat-value num">312.6 kWh</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== APPLIANCE CONSUMPTION ===================== -->
+    <section>
+      <div class="section-head">
+        <span class="section-title">Appliance consumption</span>
+        <a class="section-link" href="#">View all</a>
+      </div>
+
+      <!-- Each appliance row: icon, name, share of total, usage bar, on/off toggle -->
+      <!-- data-kwh / data-pct feed the toggle's live-recalc behavior in the script below -->
+
+      <div class="appliance-card" data-kwh="6.17" data-pct="42">
+        <div class="appliance-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3" width="16" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+        </div>
+        <div class="appliance-body">
+          <div class="appliance-top-row">
+            <span class="appliance-name">Air conditioner</span>
+            <span class="appliance-meta num">6.17 kWh · 42%</span>
+          </div>
+          <div class="usage-track"><div class="usage-fill" style="width:42%; background:var(--red);"></div></div>
+        </div>
+        <button class="toggle on" onclick="toggleAppliance(this)" aria-label="Toggle air conditioner">
+          <span class="knob"></span>
+        </button>
+      </div>
+
+      <div class="appliance-card" data-kwh="2.94" data-pct="20">
+        <div class="appliance-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2"/><path d="M5 11h14"/>
+          </svg>
+        </div>
+        <div class="appliance-body">
+          <div class="appliance-top-row">
+            <span class="appliance-name">Refrigerator</span>
+            <span class="appliance-meta num">2.94 kWh · 20%</span>
+          </div>
+          <div class="usage-track"><div class="usage-fill" style="width:20%"></div></div>
+        </div>
+        <button class="toggle on" onclick="toggleAppliance(this)" aria-label="Toggle refrigerator">
+          <span class="knob"></span>
+        </button>
+      </div>
+
+      <div class="appliance-card" data-kwh="2.35" data-pct="16">
+        <div class="appliance-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 10h16M4 10a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2M4 10v8h16v-8"/><path d="M8 18v2M16 18v2"/>
+          </svg>
+        </div>
+        <div class="appliance-body">
+          <div class="appliance-top-row">
+            <span class="appliance-name">Washing machine</span>
+            <span class="appliance-meta num">2.35 kWh · 16%</span>
+          </div>
+          <div class="usage-track"><div class="usage-fill" style="width:16%"></div></div>
+        </div>
+        <button class="toggle" onclick="toggleAppliance(this)" aria-label="Toggle washing machine">
+          <span class="knob"></span>
+        </button>
+      </div>
+
+      <div class="appliance-card" data-kwh="1.62" data-pct="11">
+        <div class="appliance-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>
+          </svg>
+        </div>
+        <div class="appliance-body">
+          <div class="appliance-top-row">
+            <span class="appliance-name">Electric fan</span>
+            <span class="appliance-meta num">1.62 kWh · 11%</span>
+          </div>
+          <div class="usage-track"><div class="usage-fill" style="width:11%"></div></div>
+        </div>
+        <button class="toggle on" onclick="toggleAppliance(this)" aria-label="Toggle electric fan">
+          <span class="knob"></span>
+        </button>
+      </div>
+
+      <div class="appliance-card" data-kwh="1.03" data-pct="7">
+        <div class="appliance-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.5 1 1.3 1 2.5h6c0-1.2.4-2 1-2.5A6 6 0 0 0 12 3z"/>
+          </svg>
+        </div>
+        <div class="appliance-body">
+          <div class="appliance-top-row">
+            <span class="appliance-name">Living room lights</span>
+            <span class="appliance-meta num">1.03 kWh · 7%</span>
+          </div>
+          <div class="usage-track"><div class="usage-fill" style="width:7%"></div></div>
+        </div>
+        <button class="toggle on" onclick="toggleAppliance(this)" aria-label="Toggle living room lights">
+          <span class="knob"></span>
+        </button>
+      </div>
+
+      <div class="appliance-card off" data-kwh="0.59" data-pct="4">
+        <div class="appliance-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10v4M11 10v4M15 10v4"/>
+          </svg>
+        </div>
+        <div class="appliance-body">
+          <div class="appliance-top-row">
+            <span class="appliance-name">Rice cooker</span>
+            <span class="appliance-meta num">0.59 kWh · 4%</span>
+          </div>
+          <div class="usage-track"><div class="usage-fill" style="width:4%"></div></div>
+        </div>
+        <button class="toggle" onclick="toggleAppliance(this)" aria-label="Toggle rice cooker">
+          <span class="knob"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================== ANOMALIES DETECTED ===================== -->
+    <section>
+      <div class="section-head">
+        <span class="section-title">Anomalies detected</span>
+      </div>
+
+      <div class="anomaly-card critical">
+        <div class="anomaly-top">
+          <span class="anomaly-name">Air conditioner — power spike</span>
+          <span class="severity-tag critical">Critical</span>
+        </div>
+        <p class="anomaly-desc">Draw jumped to 2.1 kW at 6:40 PM, about 3x the AC's normal running load for this time of day.</p>
+        <span class="anomaly-model">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l4-8 4 12 4-16 4 8 2-4"/></svg>
+          Flagged by LSTM model · 94% confidence
+        </span>
+      </div>
+
+      <div class="anomaly-card">
+        <div class="anomaly-top">
+          <span class="anomaly-name">Refrigerator — current surge</span>
+          <span class="severity-tag">Warning</span>
+        </div>
+        <p class="anomaly-desc">Short current surge detected during the compressor's last three cycles, consistent with early-stage compressor strain.</p>
+        <span class="anomaly-model">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l4-8 4 12 4-16 4 8 2-4"/></svg>
+          Flagged by GRU model · 81% confidence
+        </span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== BOTTOM NAV ===================== -->
+  <!-- Nav links are real hrefs so Dashboard/Analytics are separate pages;
+       the active tab is set automatically by initNav() in script.js -->
+  <nav class="bottom-nav">
+    <a class="nav-item" href="index.html" data-page="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="analytics.html" data-page="analytics.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M12 19V4M20 19v-6"/></svg>
+      Analytics
+    </a>
+    <a class="nav-item" href="devices.html" data-page="devices.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+      Devices
+    </a>
+    <a class="nav-item" href="#" data-page="settings.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>
+      Settings
+    </a>
+  </nav>
+
+  <!-- ===================== NOTIFICATION PANEL ===================== -->
+  <div class="notif-overlay" id="notifOverlay" onclick="closeNotificationsOnOverlay(event)">
+    <div class="notif-panel">
+      <div class="notif-header">Real-time notifications</div>
+
+      <div class="notif-item">
+        <span class="notif-dot critical"></span>
+        <div class="notif-text">
+          Air conditioner power spike detected.
+          <div class="notif-time">Today, 6:40 PM</div>
+          <div class="notif-confidence">LSTM · 94% confidence</div>
+        </div>
+      </div>
+
+      <div class="notif-item">
+        <span class="notif-dot warning"></span>
+        <div class="notif-text">
+          Refrigerator current surge on last 3 cycles.
+          <div class="notif-time">Today, 5:12 PM</div>
+          <div class="notif-confidence">GRU · 81% confidence</div>
+        </div>
+      </div>
+
+      <div class="notif-item">
+        <span class="notif-dot info"></span>
+        <div class="notif-text">
+          Daily usage passed 70% of your 20 kWh limit.
+          <div class="notif-time">Today, 4:03 PM</div>
+        </div>
+      </div>
+
+      <div class="notif-item">
+        <span class="notif-dot info"></span>
+        <div class="notif-text">
+          Washing machine turned off automatically after cycle end.
+          <div class="notif-time">Today, 1:47 PM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,991 @@
+/* ======================================================
+     DESIGN TOKENS
+     Light blue / white theme for an IoT energy dashboard.
+     Space Grotesk = numeric readouts (kWh, ₱, %), gives the
+     data a technical, metered feel.
+     Inter = UI labels/body text, stays quiet and legible.
+     ====================================================== */
+  :root{
+    --sky-50:  #f3f9fd;   /* page background */
+    --sky-100: #e4f1fb;   /* card fill / section tint */
+    --sky-200: #cfe6f7;   /* borders, dividers */
+    --sky-500: #4d9ae0;   /* mid accent (bars, icons) */
+    --sky-600: #2f7dc4;   /* primary accent (buttons, active states) */
+    --sky-700: #1f5f9e;   /* headings on light bg */
+    --navy-900:#0f2438;   /* primary text */
+    --navy-500:#4a6378;   /* secondary text */
+    --white:   #ffffff;
+
+    --amber:   #e2a230;   /* warning severity */
+    --red:     #d64545;   /* critical severity / high-usage bars */
+    --green:   #3fa66a;   /* info / positive */
+
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+
+    --shadow-card: 0 1px 2px rgba(15,36,56,0.04), 0 6px 20px rgba(15,36,56,0.06);
+
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    height: 100%;
+    margin: 0;
+    background: var(--sky-50);
+    color: var(--navy-900);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Numeric / data-readout typeface, used anywhere a live metric appears */
+  .num{
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-weight: 600;
+  }
+
+  button{ font-family: inherit; }
+
+  /* ======================================================
+     APP SHELL — phone-sized frame, centered on wider screens
+     ====================================================== */
+  .app{
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100%;
+    background: var(--sky-50);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ------------------ TOP BAR ------------------ */
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: calc(16px + var(--safe-top)) 20px 14px;
+    background: var(--sky-50);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--sky-200);
+  }
+  .brand{ display:flex; flex-direction:column; line-height:1.1; }
+  .brand-name{ font-size: 17px; font-weight: 700; color: var(--sky-700); letter-spacing: 0.2px; }
+  .brand-sub{ font-size: 12px; color: var(--navy-500); margin-top: 2px; }
+
+  .icon-btn{
+    position: relative;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--sky-200);
+    background: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+  }
+  .icon-btn svg{ width: 20px; height: 20px; stroke: var(--sky-700); }
+  /* Unread-alert dot on the bell */
+  .badge-dot{
+    position: absolute; top: 7px; right: 8px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red);
+    border: 1.5px solid var(--white);
+  }
+
+  /* ------------------ MAIN SCROLL AREA ------------------ */
+  main{
+    flex: 1;
+    padding: 18px 20px calc(96px + var(--safe-bottom));
+    overflow-x: hidden;
+  }
+
+  section{ margin-bottom: 26px; }
+
+  .section-head{
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .section-title{ font-size: 15px; font-weight: 700; color: var(--navy-900); }
+  .section-link{ font-size: 12.5px; color: var(--sky-600); font-weight: 600; text-decoration: none; }
+
+  /* ======================================================
+     HERO CARD — total consumption for today
+     ====================================================== */
+  .hero{
+    background: linear-gradient(165deg, var(--sky-600), var(--sky-700));
+    border-radius: var(--radius-lg);
+    padding: 22px;
+    color: var(--white);
+    box-shadow: 0 10px 30px rgba(31,95,158,0.28);
+  }
+  .hero-top{ display:flex; justify-content: space-between; align-items:flex-start; }
+  .hero-label{ font-size: 13px; opacity: 0.85; }
+  .hero-value{ font-size: 40px; margin-top: 4px; }
+  .hero-value span{ font-size: 17px; font-weight: 500; opacity: 0.85; margin-left: 4px; }
+
+  .hero-limit-pill{
+    font-size: 11.5px;
+    background: rgba(255,255,255,0.16);
+    border-radius: 999px;
+    padding: 5px 10px;
+    white-space: nowrap;
+  }
+
+  /* Progress bar vs daily 20kWh limit */
+  .limit-bar-track{
+    margin-top: 16px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.22);
+    overflow: hidden;
+  }
+  .limit-bar-fill{
+    height: 100%;
+    border-radius: 999px;
+    background: var(--white);
+    width: 73.5%; /* 14.7 / 20 kWh */
+  }
+  .limit-caption{ display:flex; justify-content: space-between; font-size: 11.5px; margin-top: 6px; opacity: 0.85; }
+
+  /* Mini hourly bar chart — red bars flag recent high usage hours */
+  .hourly-chart{
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 46px;
+    margin-top: 18px;
+  }
+  .hourly-chart .bar{
+    flex: 1;
+    border-radius: 3px 3px 1px 1px;
+    background: rgba(255,255,255,0.35);
+  }
+  .hourly-chart .bar.high{ background: var(--red); }
+  .hourly-caption{ display:flex; justify-content: space-between; font-size: 10.5px; opacity: 0.7; margin-top: 6px; }
+
+  /* Quick stat grid: load / cost / active appliances / monthly total */
+  .hero-stats{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .stat-chip{
+    background: rgba(255,255,255,0.12);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+  .stat-chip .stat-label{ font-size: 11px; opacity: 0.8; }
+  .stat-chip .stat-value{ font-size: 16px; margin-top: 2px; }
+
+  /* ======================================================
+     APPLIANCE LIST
+     ====================================================== */
+  .appliance-card{
+    background: var(--white);
+    border: 1px solid var(--sky-200);
+    border-radius: var(--radius-md);
+    padding: 14px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+  }
+  .appliance-icon{
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--sky-100);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink: 0;
+  }
+  .appliance-icon svg{ width: 20px; height: 20px; stroke: var(--sky-700); }
+
+  .appliance-body{ flex: 1; min-width: 0; }
+  .appliance-top-row{ display:flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .appliance-name{ font-size: 13.5px; font-weight: 600; }
+  .appliance-meta{ font-size: 12px; color: var(--navy-500); white-space: nowrap; }
+
+  .usage-track{
+    margin-top: 8px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--sky-100);
+    overflow: hidden;
+  }
+  .usage-fill{ height: 100%; border-radius: 999px; background: var(--sky-500); }
+
+  /* On/off toggle switch — functional via JS below */
+  .toggle{
+    width: 42px; height: 24px;
+    border-radius: 999px;
+    background: var(--sky-200);
+    border: none;
+    position: relative;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .toggle .knob{
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--white);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease;
+  }
+  .toggle.on{ background: var(--sky-600); }
+  .toggle.on .knob{ transform: translateX(18px); }
+  .appliance-card.off{ opacity: 0.55; }
+
+  /* ======================================================
+     ANOMALIES DETECTED
+     ====================================================== */
+  .anomaly-card{
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-card);
+    border-left: 4px solid var(--amber); /* color reassigned inline per severity */
+  }
+  .anomaly-card.critical{ border-left-color: var(--red); }
+
+  .anomaly-top{ display:flex; justify-content: space-between; align-items:center; }
+  .anomaly-name{ font-size: 13.5px; font-weight: 700; }
+
+  .severity-tag{
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    color: var(--white);
+    background: var(--amber);
+  }
+  .severity-tag.critical{ background: var(--red); }
+
+  .anomaly-desc{ font-size: 12.5px; color: var(--navy-500); margin-top: 6px; line-height: 1.45; }
+
+  .anomaly-model{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 9px;
+    font-size: 11px;
+    color: var(--sky-700);
+    background: var(--sky-100);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+
+  /* ======================================================
+     BOTTOM NAV
+     ====================================================== */
+  .bottom-nav{
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 30;
+    max-width: 430px;
+    margin: 0 auto;
+    background: var(--white);
+    border-top: 1px solid var(--sky-200);
+    padding: 10px 10px calc(10px + var(--safe-bottom));
+    display: flex;
+    justify-content: space-around;
+  }
+  .nav-item{
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: none; cursor: pointer;
+    color: var(--navy-500);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+  }
+  .nav-item svg{ width: 21px; height: 21px; stroke: var(--navy-500); }
+  .nav-item.active{ color: var(--sky-600); }
+  .nav-item.active svg{ stroke: var(--sky-600); }
+
+  /* ======================================================
+     NOTIFICATION PANEL — slides down from top bar on bell tap
+     ====================================================== */
+  .notif-overlay{
+    position: fixed; inset: 0;
+    background: rgba(15,36,56,0.35);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .notif-overlay.open{ opacity: 1; pointer-events: auto; }
+
+  .notif-panel{
+    position: absolute;
+    top: calc(8px + var(--safe-top));
+    right: 16px;
+    width: min(320px, 84vw);
+    background: var(--white);
+    border-radius: var(--radius-md);
+    box-shadow: 0 20px 45px rgba(15,36,56,0.25);
+    overflow: hidden;
+    transform: translateY(-8px);
+    opacity: 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .notif-overlay.open .notif-panel{ transform: translateY(0); opacity: 1; }
+
+  .notif-header{
+    padding: 14px 16px;
+    font-size: 13.5px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--sky-200);
+  }
+  .notif-item{
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--sky-100);
+  }
+  .notif-item:last-child{ border-bottom: none; }
+  .notif-dot{ width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+  .notif-dot.critical{ background: var(--red); }
+  .notif-dot.warning{ background: var(--amber); }
+  .notif-dot.info{ background: var(--green); }
+
+  .notif-text{ font-size: 12.5px; line-height: 1.4; }
+  .notif-time{ font-size: 10.5px; color: var(--navy-500); margin-top: 3px; }
+  .notif-confidence{ font-size: 10.5px; color: var(--sky-600); font-weight: 600; margin-top: 3px; }
+
+  /* Respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; }
+  }
+
+  /* ======================================================
+     ANALYTICS PAGE — summary stat cards
+     ====================================================== */
+  .summary-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .summary-card{
+    background: var(--white);
+    border: 1px solid var(--sky-200);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    box-shadow: var(--shadow-card);
+  }
+  .summary-label{ font-size: 11.5px; color: var(--navy-500); }
+  .summary-value{ font-size: 19px; margin-top: 4px; }
+  .summary-value.alert{ color: var(--red); }
+  .summary-delta{ font-size: 11px; margin-top: 3px; color: var(--green); }
+  .summary-delta.down{ color: var(--red); }
+
+  /* ======================================================
+     ANALYTICS PAGE — generic chart card wrapper
+     ====================================================== */
+  .chart-card{
+    background: var(--white);
+    border: 1px solid var(--sky-200);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+  }
+  .chart-card-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .chart-card-title{ font-size: 14px; font-weight: 700; }
+
+  /* Week / Month / Year period switcher */
+  .segmented-control{
+    display: inline-flex;
+    background: var(--sky-100);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .segmented-btn{
+    border: none;
+    background: none;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--navy-500);
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .segmented-btn.active{
+    background: var(--sky-600);
+    color: var(--white);
+  }
+
+  .chart-svg{ width: 100%; height: auto; display: block; }
+  /* Axis / tick labels drawn inside chart SVGs */
+  .chart-axis-label{
+    font-family: 'Inter', sans-serif;
+    font-size: 8.5px;
+    fill: var(--navy-500);
+  }
+  .chart-caption{ font-size: 11.5px; color: var(--navy-500); margin-top: 10px; }
+
+  /* ======================================================
+     ANALYTICS PAGE — donut chart + legend list
+     ====================================================== */
+  .donut-layout{
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .donut-wrapper{ flex-shrink: 0; width: 130px; height: 130px; position: relative; }
+  .donut-wrapper svg{ width: 100%; height: 100%; }
+  .donut-center{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .donut-center-value{ font-size: 15px; }
+  .donut-center-label{ font-size: 9.5px; color: var(--navy-500); }
+
+  .legend-list{ flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .legend-row{ display: flex; align-items: center; gap: 8px; }
+  .legend-swatch{ width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .legend-name{ font-size: 12.5px; flex: 1; min-width: 0; }
+  .legend-pct{ font-size: 12.5px; }
+  .legend-kwh{ font-size: 10.5px; color: var(--navy-500); }
+
+  /* ======================================================
+     ANALYTICS PAGE — anomaly history timeline
+     ====================================================== */
+  .timeline{
+    position: relative;
+    padding-left: 22px;
+  }
+  .timeline::before{
+    content: '';
+    position: absolute;
+    left: 5px; top: 4px; bottom: 4px;
+    width: 2px;
+    background: var(--sky-200);
+  }
+  .timeline-item{ position: relative; padding-bottom: 20px; }
+  .timeline-item:last-child{ padding-bottom: 0; }
+  .timeline-dot{
+    position: absolute;
+    left: -22px; top: 3px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2.5px solid var(--amber);
+  }
+  .timeline-dot.critical{ border-color: var(--red); }
+
+  .timeline-card{
+    background: var(--white);
+    border: 1px solid var(--sky-200);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-card);
+  }
+  .timeline-top{ display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .timeline-name{ font-size: 13px; font-weight: 700; }
+  .timeline-time{ font-size: 11px; color: var(--navy-500); margin-top: 2px; }
+  .timeline-model{
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 10.5px;
+    color: var(--sky-700);
+    background: var(--sky-100);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .timeline-status{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    font-weight: 600;
+    margin-top: 8px;
+    margin-left: 8px;
+    color: var(--green);
+  }
+  .timeline-status.pending{ color: var(--amber); }
+  .timeline-status .status-dot{ width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ======================================================
+     DEVICES PAGE — IoT hub card (ESP32 controller status)
+     ====================================================== */
+  .hub-card{
+    background: linear-gradient(165deg, var(--sky-600), var(--sky-700));
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    color: var(--white);
+    box-shadow: 0 10px 30px rgba(31,95,158,0.28);
+  }
+  .hub-top{ display: flex; align-items: center; gap: 10px; }
+  .hub-icon{
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    background: rgba(255,255,255,0.16);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .hub-icon svg{ width: 20px; height: 20px; stroke: var(--white); }
+  .hub-name{ font-size: 14.5px; font-weight: 700; }
+  .hub-status-row{ display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+  .hub-status-dot{ width: 6px; height: 6px; border-radius: 50%; background: #6fe3a0; }
+  .hub-status-text{ font-size: 11.5px; opacity: 0.85; }
+
+  .hub-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  .hub-stat-label{ font-size: 10.5px; opacity: 0.75; }
+  .hub-stat-value{ font-size: 13.5px; margin-top: 2px; word-break: break-all; }
+
+  /* RSSI signal-strength bars */
+  .signal-bars{ display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; margin-right: 5px; vertical-align: middle; }
+  .signal-bars span{ width: 3px; background: rgba(255,255,255,0.35); border-radius: 1px; }
+  .signal-bars span:nth-child(1){ height: 4px; }
+  .signal-bars span:nth-child(2){ height: 7px; }
+  .signal-bars span:nth-child(3){ height: 10px; }
+  .signal-bars span:nth-child(4){ height: 13px; }
+  .signal-bars.strength-1 span:nth-child(1){ background: var(--white); }
+  .signal-bars.strength-2 span:nth-child(1),
+  .signal-bars.strength-2 span:nth-child(2){ background: var(--white); }
+  .signal-bars.strength-3 span:nth-child(1),
+  .signal-bars.strength-3 span:nth-child(2),
+  .signal-bars.strength-3 span:nth-child(3){ background: var(--white); }
+  .signal-bars.strength-4 span{ background: var(--white); }
+
+  /* ======================================================
+     DEVICES PAGE — filter bar (All / On / Off / Anomaly)
+     ====================================================== */
+  .filter-bar{
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+  .filter-chip{
+    border: 1px solid var(--sky-200);
+    background: var(--white);
+    color: var(--navy-500);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .filter-chip.active{
+    background: var(--sky-600);
+    border-color: var(--sky-600);
+    color: var(--white);
+  }
+  .filter-chip .count{ opacity: 0.7; margin-left: 3px; }
+
+  /* ======================================================
+     DEVICES PAGE — device cards
+     ====================================================== */
+  .device-card{
+    background: var(--white);
+    border: 1px solid var(--sky-200);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-card);
+  }
+  .device-card.off{ opacity: 0.6; }
+
+  .device-head{ display: flex; align-items: center; gap: 12px; }
+  .device-icon{
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    background: var(--sky-100);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .device-icon svg{ width: 20px; height: 20px; stroke: var(--sky-700); }
+
+  .device-title{ flex: 1; min-width: 0; }
+  .device-name{ font-size: 13.5px; font-weight: 700; }
+  .device-meta{ font-size: 11px; color: var(--navy-500); margin-top: 2px; }
+
+  /* Live metric grid: current / power / today / runtime */
+  .device-metrics{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .device-metric{ text-align: left; }
+  .device-metric-label{ font-size: 9.5px; color: var(--navy-500); }
+  .device-metric-value{ font-size: 13px; margin-top: 2px; }
+
+  .device-actions{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--sky-100);
+  }
+  .schedule-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--sky-600);
+    background: var(--sky-100);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .schedule-btn svg{ width: 13px; height: 13px; stroke: var(--sky-600); }
+
+  /* Inline anomaly banner on the flagged device's own card */
+  .device-anomaly-banner{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 9px 11px;
+    border-radius: var(--radius-sm);
+    font-size: 11.5px;
+    background: rgba(214,69,69,0.08);
+    color: var(--red);
+  }
+  .device-anomaly-banner.warning{
+    background: rgba(226,162,48,0.1);
+    color: #8a6416;
+  }
+  .device-anomaly-banner svg{ width: 15px; height: 15px; flex-shrink: 0; stroke: currentColor; }
+  .device-anomaly-banner .conf{ font-weight: 700; }
+
+  /* Collapsible quick-schedule panel, toggled by the Schedule button */
+  .schedule-panel{
+    display: none;
+    gap: 10px;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--sky-100);
+  }
+  .schedule-panel.open{ display: flex; }
+  .schedule-field{ display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .schedule-field label{ font-size: 10px; color: var(--navy-500); }
+  .schedule-field input[type="time"]{
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12.5px;
+    border: 1px solid var(--sky-200);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    background: var(--sky-50);
+    color: var(--navy-900);
+  }
+  .schedule-save{
+    align-self: flex-end;
+    background: var(--sky-600);
+    color: var(--white);
+    border: none;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  /* ======================================================
+     DEVICES PAGE — add new sensor card
+     ====================================================== */
+  .add-sensor-card{
+    border: 1.5px dashed var(--sky-200);
+    border-radius: var(--radius-md);
+    background: transparent;
+    width: 100%;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--sky-600);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .add-sensor-card svg{ width: 18px; height: 18px; stroke: var(--sky-600); }
+  .add-sensor-card:hover{ background: var(--sky-100); }
+
+  /* ======================================================
+     SMART PLUG PAIRING MODAL — 5-step flow, opened from the
+     "Add new sensor" card on the Devices screen. This is a
+     modal dialog (not a route), so all 5 steps live in one
+     overlay and only one .pairing-step is visible at a time.
+     ====================================================== */
+  .pairing-overlay{
+    position: fixed; inset: 0;
+    background: rgba(15,36,56,0.45);
+    z-index: 50;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .pairing-overlay.open{ opacity: 1; pointer-events: auto; }
+
+  .pairing-modal{
+    width: 100%;
+    max-width: 430px;
+    max-height: 88vh;
+    background: var(--white);
+    border-radius: 22px 22px 0 0;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(16px);
+    opacity: 0;
+    transition: transform 0.22s ease, opacity 0.22s ease;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pairing-overlay.open .pairing-modal{ transform: translateY(0); opacity: 1; }
+
+  /* Wider screens: show as a centered card instead of a bottom sheet */
+  @media (min-width: 480px){
+    .pairing-overlay{ align-items: center; }
+    .pairing-modal{ border-radius: var(--radius-lg); max-height: 85vh; }
+  }
+
+  .pairing-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px 0;
+  }
+  .pairing-step-count{ font-size: 11.5px; color: var(--navy-500); font-weight: 600; }
+  .pairing-close{
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: var(--sky-100);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .pairing-close svg{ width: 15px; height: 15px; stroke: var(--navy-500); }
+
+  .pairing-progress-track{
+    height: 4px;
+    background: var(--sky-100);
+    border-radius: 999px;
+    margin: 10px 18px 0;
+    overflow: hidden;
+  }
+  .pairing-progress-fill{
+    height: 100%;
+    background: var(--sky-600);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  .pairing-body{
+    padding: 18px;
+    overflow-y: auto;
+  }
+  .pairing-step{ display: none; }
+  .pairing-step.active{ display: block; }
+
+  .pairing-title{ font-size: 17px; font-weight: 700; }
+  .pairing-subtitle{ font-size: 12.5px; color: var(--navy-500); margin-top: 4px; line-height: 1.5; }
+
+  /* Step 1 — physical setup checklist */
+  .setup-steps{ list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .setup-steps li{ display: flex; gap: 12px; align-items: flex-start; }
+  .setup-step-num{
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--sky-100); color: var(--sky-700);
+    font-size: 11.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .setup-step-text{ font-size: 13px; line-height: 1.45; padding-top: 2px; }
+
+  .pairing-note{
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 11px 12px;
+    background: var(--sky-100);
+    border-radius: var(--radius-sm);
+    font-size: 11.5px;
+    color: var(--sky-700);
+    line-height: 1.4;
+  }
+  .pairing-note svg{ width: 15px; height: 15px; flex-shrink: 0; stroke: var(--sky-700); }
+
+  /* Step 2 — device discovery list */
+  .scan-status{ display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--navy-500); margin-top: 14px; }
+  .scan-dot{
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--sky-600);
+    animation: scanPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes scanPulse{ 0%,100%{ opacity: 0.3; } 50%{ opacity: 1; } }
+
+  .found-device-list{ margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .found-device-row{
+    display: flex; align-items: center; gap: 10px;
+    border: 1.5px solid var(--sky-200);
+    border-radius: var(--radius-md);
+    padding: 11px 12px;
+    cursor: pointer;
+  }
+  .found-device-row.selected{ border-color: var(--sky-600); background: var(--sky-50); }
+  .found-radio{
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--sky-200);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .found-device-row.selected .found-radio{ border-color: var(--sky-600); }
+  .found-radio-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--sky-600); display: none; }
+  .found-device-row.selected .found-radio-dot{ display: block; }
+
+  .found-device-info{ flex: 1; min-width: 0; }
+  .found-device-name{ font-size: 12.5px; font-weight: 600; }
+  .found-device-mac{ font-size: 10.5px; color: var(--navy-500); margin-top: 1px; }
+
+  /* Signal bars on a white background (device list, unlike the hub card's white-on-blue version) */
+  .signal-mini{ display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+  .signal-mini span{ width: 3px; background: var(--sky-200); border-radius: 1px; }
+  .signal-mini span:nth-child(1){ height: 4px; }
+  .signal-mini span:nth-child(2){ height: 7px; }
+  .signal-mini span:nth-child(3){ height: 10px; }
+  .signal-mini span:nth-child(4){ height: 13px; }
+  .signal-mini.strength-2 span:nth-child(1),
+  .signal-mini.strength-2 span:nth-child(2){ background: var(--sky-600); }
+  .signal-mini.strength-3 span:nth-child(1),
+  .signal-mini.strength-3 span:nth-child(2),
+  .signal-mini.strength-3 span:nth-child(3){ background: var(--sky-600); }
+
+  .device-label-fields{ margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .field-group label{ display: block; font-size: 11.5px; font-weight: 600; color: var(--navy-500); margin-bottom: 5px; }
+  .field-group input[type="text"],
+  .field-group input[type="password"],
+  .field-group select{
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    color: var(--navy-900);
+    border: 1.5px solid var(--sky-200);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    background: var(--sky-50);
+  }
+  .field-group input:focus,
+  .field-group select:focus{ outline: 2px solid var(--sky-500); outline-offset: 1px; }
+
+  /* Step 3 — Wi-Fi credentials */
+  .wifi-network-chip{
+    display: flex; align-items: center; gap: 10px;
+    border: 1.5px solid var(--sky-200);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    margin-top: 16px;
+  }
+  .wifi-network-chip svg{ width: 20px; height: 20px; stroke: var(--sky-600); flex-shrink: 0; }
+  .wifi-network-name{ font-size: 13px; font-weight: 600; }
+  .wifi-network-label{ font-size: 10.5px; color: var(--navy-500); }
+
+  .password-field-wrap{ position: relative; }
+  .password-toggle{
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    border: none; background: none; cursor: pointer;
+    font-size: 11px; font-weight: 600; color: var(--sky-600);
+  }
+
+  /* Step 4 — connecting checklist */
+  .connect-checklist{ list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .connect-item{ display: flex; align-items: center; gap: 10px; }
+  .connect-marker{
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--sky-200);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .connect-item.done .connect-marker{ background: var(--sky-600); border-color: var(--sky-600); }
+  .connect-item.done .connect-marker svg{ width: 11px; height: 11px; stroke: var(--white); }
+  .connect-item.active .connect-marker{ border-color: var(--sky-600); }
+  .connect-label{ font-size: 13px; color: var(--navy-500); }
+  .connect-item.active .connect-label,
+  .connect-item.done .connect-label{ color: var(--navy-900); font-weight: 600; }
+
+  .connect-sub-progress{ margin: 8px 0 0 32px; }
+  .connect-sub-track{ height: 5px; background: var(--sky-100); border-radius: 999px; overflow: hidden; }
+  .connect-sub-fill{ height: 100%; background: var(--sky-600); border-radius: 999px; width: 0%; transition: width 0.15s linear; }
+
+  /* Step 5 — done / summary */
+  .pairing-success-icon{
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(63,166,106,0.12);
+    display: flex; align-items: center; justify-content: center;
+    margin: 4px auto 0;
+  }
+  .pairing-success-icon svg{ width: 28px; height: 28px; stroke: var(--green); }
+
+  .summary-card{
+    margin-top: 18px;
+    border: 1px solid var(--sky-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .summary-row{
+    display: flex; justify-content: space-between; gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--sky-100);
+    font-size: 12.5px;
+  }
+  .summary-row:last-child{ border-bottom: none; }
+  .summary-row-label{ color: var(--navy-500); }
+  .summary-row-value{ font-weight: 600; text-align: right; }
+
+  /* ======================================================
+     PAIRING MODAL — footer (Back / Continue, per-step)
+     ====================================================== */
+  .pairing-footer{
+    display: flex;
+    gap: 10px;
+    padding: 14px 18px;
+    border-top: 1px solid var(--sky-100);
+  }
+  .pairing-btn{
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: none;
+  }
+  .pairing-btn.secondary{ background: var(--sky-100); color: var(--sky-700); }
+  .pairing-btn.primary{ background: var(--sky-600); color: var(--white); }
+  .pairing-btn.primary:disabled{ background: var(--sky-200); color: var(--navy-500); cursor: not-allowed; }
