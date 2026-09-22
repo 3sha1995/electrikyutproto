@@ -110,9 +110,6 @@ function renderDailyChart(period) {
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.innerHTML = bars + baseline + labels;
 
-  const caption = document.getElementById("dailyChartCaption");
-  if (caption)
-    caption.textContent = `Average: ${data.baseline.toFixed(1)} kWh — bars above the dashed line ran over average`;
 }
 
 /* ======================================================

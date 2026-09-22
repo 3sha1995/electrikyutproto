@@ -629,11 +629,6 @@ section {
   font-size: 8.5px;
   fill: var(--navy-500);
 }
-.chart-caption {
-  font-size: 11.5px;
-  color: var(--navy-500);
-  margin-top: 10px;
-}
 
 /* ======================================================
      ANALYTICS PAGE — donut chart + legend list
@@ -1765,11 +1760,6 @@ section {
 .detail-section-title {
   font-size: 13px;
   font-weight: 700;
-}
-.detail-section-caption {
-  font-size: 11px;
-  color: var(--navy-500);
-  margin-top: 8px;
 }
 
 /* Reuses .chart-svg / .chart-axis-label from the Analytics charts */
